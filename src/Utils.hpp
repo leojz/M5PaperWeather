@@ -22,7 +22,7 @@
 #pragma once
 #include <TimeLib.h> 
 
-/* Convert the RTC date time to YYYY/MM/DD HH:MM:SS */
+/* Convert the RTC date time to YYYY/MM/DD HH:MM */
 String getRTCDateTimeString() 
 {
    char       buff[32];
@@ -32,9 +32,9 @@ String getRTCDateTimeString()
    M5.RTC.getDate(&date_struct);
    M5.RTC.getTime(&time_struct);
 
-   sprintf(buff,"%04d/%02d/%02d %02d:%02d:%02d",
+   sprintf(buff,"%04d/%02d/%02d %02d:%02d",
       date_struct.year, date_struct.mon, date_struct.day,
-      time_struct.hour, time_struct.min, time_struct.sec);
+      time_struct.hour, time_struct.min);
 
    return (String) buff;
 }
@@ -81,20 +81,20 @@ String getRTCTimeString()
    
    M5.RTC.getTime(&time_struct);
 
-   sprintf(buff,"%02d:%02d:%02d",      
-      time_struct.hour, time_struct.min, time_struct.sec);
+   sprintf(buff,"%02d:%02d",      
+      time_struct.hour, time_struct.min);
 
    return (String) buff;
 }
 
-/* Convert the time_t to the YYYY/MM/DD HH:MM:SS format */
+/* Convert the time_t to the YYYY/MM/DD HH:MM format */
 String getDateTimeString(time_t rawtime)
 {
    char buff[32];
    
-   sprintf(buff,"%04d/%02d/%02d %02d:%02d:%02d",
+   sprintf(buff,"%04d/%02d/%02d %02d:%02d",
       year(rawtime), month(rawtime), day(rawtime),
-      hour(rawtime), minute(rawtime), second(rawtime));
+      hour(rawtime), minute(rawtime));
 
    return (String) buff;
 }
@@ -116,13 +116,13 @@ String getShortDayOfWeekString(time_t rawtime)
    return (String) dayShortStr(weekday(rawtime));
 }
 
-/* Convert the time_t to the time part HH:MM:SS format */
+/* Convert the time_t to the time part HH:MM format */
 String getTimeString(time_t rawtime)
 {
    char buff[32];
    
-   sprintf(buff,"%02d:%02d:%02d",
-      hour(rawtime), minute(rawtime), second(rawtime));
+   sprintf(buff,"%02d:%02d",
+      hour(rawtime), minute(rawtime));
 
    return (String) buff;
 }
@@ -184,7 +184,7 @@ String getFloatString(float value, const char* unit)
 {
    char buff[32];
    
-   sprintf(buff,"%6.2f%s", value, unit);
+   sprintf(buff,"%6.1f%s", value, unit);
 
    return (String) buff;
 }

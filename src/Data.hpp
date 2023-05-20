@@ -36,7 +36,7 @@ public:
    int     wifiRSSI;         //!< The wifi signal strength
    float   batteryVolt;      //!< The current battery voltage
    int     batteryCapacity;  //!< The current battery capacity
-   int     sht30Temperatur;  //!< SHT30 temperature
+   float   sht30Temperatur;  //!< SHT30 temperature
    int     sht30Humidity;    //!< SHT30 humidity
 
    Weather weather;          //!< All the openweathermap data
@@ -61,7 +61,7 @@ public:
       Serial.println("WifiRSSI: "        + String(wifiRSSI));
       Serial.println("BatteryVolt: "     + String(batteryVolt));
       Serial.println("BatteryCapacity: " + String(batteryCapacity));
-      Serial.println("Sht30Temperatur: " + String(sht30Temperatur));
+      Serial.println("Sht30Temperatur: " + String(sht30Temperatur, 1));
       Serial.println("Sht30Humidity: "   + String(sht30Humidity));
       
       Serial.println("Sunrise: "         + getDateTimeString(weather.sunrise));

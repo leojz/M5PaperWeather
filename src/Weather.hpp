@@ -77,14 +77,14 @@ protected:
       HTTPClient http;
       String     uri;
       
-      uri += "/data/2.5/onecall";
+      uri += "/data/3.0/onecall";
       uri += "?lat=" + String((float) LATITUDE, 5);
       uri += "&lon=" + String((float) LONGITUDE, 5);
       uri += "&units=metric&lang=en&exclude=minutely";
       uri += "&appid=" + (String) OPENWEATHER_API;
 
       client.stop();
-      http.begin(client, OPENWEATHER_SRV, OPENWEATHER_PORT, uri);
+      http.begin(client, OPENWEATHER_SRV, OPENWEATHER_PORT, uri, 1);
       
       int httpCode = http.GET();
       
@@ -122,20 +122,20 @@ protected:
       JsonArray hourly_list = root["hourly"];
       hourlyTime[0]    = LocalTime(root["current"]["dt"].as<int>());
       hourlyMaxTemp[0] = root["current"]["temp"].as<float>();
-      hourlyMain[0]    = root["current"]["weather"][0]["main"].as<char *>();
+      hourlyMain[0]    = root["current"]["weather"][0]["main"].as<const char *>();
       hourlyRain[0]    = max(root["current"]["rain"]["1h"].as<float>(), root["current"]["snow"]["1h"].as<float>());
       hourlyPop[0]     = root["current"]["pop"].as<float>() * 100;
       hourlyPressure[0]= root["current"]["pressure"].as<float>();
-      hourlyIcon[0]    = root["current"]["weather"][0]["icon"].as<char *>();
+      hourlyIcon[0]    = root["current"]["weather"][0]["icon"].as<const char *>();
       for (int i = 1; i < MAX_HOURLY; i++) {
          if (i < hourly_list.size()) {
             hourlyTime[i]    = LocalTime(hourly_list[i - 1]["dt"].as<int>());
             hourlyMaxTemp[i] = hourly_list[i - 1]["temp"].as<float>();
-            hourlyMain[i]    = hourly_list[i - 1]["weather"][0]["main"].as<char *>();
+            hourlyMain[i]    = hourly_list[i - 1]["weather"][0]["main"].as<const char *>();
             hourlyRain[i]    = max(hourly_list[i - 1]["rain"]["1h"].as<float>(), hourly_list[i - 1]["snow"]["1h"].as<float>());
             hourlyPop[i]     = hourly_list[i - 1]["pop"].as<float>() * 100;
             hourlyPressure[i]= hourly_list[i - 1]["pressure"].as<float>();
-            hourlyIcon[i]    = hourly_list[i - 1]["weather"][0]["icon"].as<char *>();
+            hourlyIcon[i]    = hourly_list[i - 1]["weather"][0]["icon"].as<const char *>();
             if (hourlyRain[i] > hourlyMaxRain) {
                hourlyMaxRain = hourlyRain[i] + 4;
             }
@@ -157,7 +157,7 @@ protected:
             forecastRain[i]     = max(dayly_list[i]["rain"].as<float>(), dayly_list[i]["snow"].as<float>());
             forecastPop[i]      = dayly_list[i]["pop"].as<float>() * 100;
             forecastPressure[i] = dayly_list[i]["pressure"].as<float>();
-            forecastIcon[i]     = dayly_list[i]["weather"][0]["icon"].as<char *>();
+            forecastIcon[i]     = dayly_list[i]["weather"][0]["icon"].as<const char *>();
          }
          if (forecastRain[i] > forecastMaxRain) {
             forecastMaxRain = forecastRain[i] + 4;

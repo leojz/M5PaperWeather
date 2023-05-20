@@ -48,7 +48,7 @@ protected:
    void DrawWeatherInfo(int x, int y, int dx, int dy);
    void DrawSunInfo(int x, int y, int dx, int dy);
    void DrawWindInfo(int x, int y, int dx, int dy);
-   void DrawM5PaperInfo(int x, int y, int dx, int dy);
+   void DrawIndoorInfo(int x, int y, int dx, int dy);
 
    void DrawDaily(int x, int y, int dx, int dy, Weather &weather, int index);
    
@@ -65,7 +65,7 @@ public:
 
    void Show();
 
-   void ShowM5PaperInfo();
+   void ShowIndoorInfo();
 };
 
 /* Draw a circle with optional start and end point */
@@ -108,7 +108,7 @@ void WeatherDisplay::DrawBattery(int x, int y)
 /* Draw a the head with version, city, rssi and battery */
 void WeatherDisplay::DrawHead()
 {
-   canvas.drawString(VERSION, 20, 10);
+   canvas.drawString(getRTCDateTimeString(), 20, 10);
    canvas.drawCentreString(CITY_NAME, maxX / 2, 10, 1);
    canvas.drawString(WifiGetRssiAsQuality(myData.wifiRSSI) + "%", maxX - 200, 10);
    DrawRSSI(maxX - 155, 25);
@@ -136,27 +136,19 @@ void WeatherDisplay::DrawIcon(int x, int y, const uint16_t *icon, int dx /*= 64*
 void WeatherDisplay::DrawSunInfo(int x, int y, int dx, int dy)
 {
    canvas.setTextSize(3);
-   canvas.drawCentreString("Sun", x + dx / 2, y + 7, 1);
-   canvas.drawLine(x, y + 35, x + dx, y + 35, M5EPD_Canvas::G15);
-
-   canvas.setTextSize(3);
-   DrawIcon(x + 25, y + 55, (uint16_t *) SUNRISE64x64);
-   canvas.drawString(getHourMinString(myData.weather.sunrise), x + 105, y + 80, 1);
+   DrawIcon(x + 25, y + 15, (uint16_t *) SUNRISE64x64);
+   canvas.drawString(getHourMinString(myData.weather.sunrise), x + 105, y + 45, 1);
    
-   DrawIcon(x + 25, y + 150, (uint16_t *) SUNSET64x64);
-   canvas.drawString(getHourMinString(myData.weather.sunset), x + 105, y + 175, 1);
+   DrawIcon(x + 25, y + 100, (uint16_t *) SUNSET64x64);
+   canvas.drawString(getHourMinString(myData.weather.sunset), x + 105, y + 125, 1);
 }
 
 /* Draw current weather information */
 void WeatherDisplay::DrawWeatherInfo(int x, int y, int dx, int dy)
 {
-   canvas.setTextSize(3);
-   canvas.drawCentreString("Weather", x + dx / 2, y + 7, 1);
-   canvas.drawLine(x, y + 35, x + dx, y + 35, M5EPD_Canvas::G15);
-
    String icon = myData.weather.hourlyIcon[0];
    int iconX = x + dx / 2 - 32;
-   int iconY = y + 45;
+   int iconY = y + 15;
 
         if (icon == "01d") DrawIcon(iconX, iconY, (uint16_t *) image_data_01d, 64, 64, true);
    else if (icon == "01n") DrawIcon(iconX, iconY, (uint16_t *) image_data_03n, 64, 64, true);
@@ -178,10 +170,11 @@ void WeatherDisplay::DrawWeatherInfo(int x, int y, int dx, int dy)
    else if (icon == "50n") DrawIcon(iconX, iconY, (uint16_t *) image_data_50n, 64, 64, true);
    else DrawIcon(iconX, iconY, (uint16_t *) image_data_unknown, 64, 64, true);
 
-   canvas.drawCentreString(myData.weather.hourlyMain[0], x + dx / 2, y + 110, 1);
+   canvas.setTextSize(3);
+   canvas.drawCentreString(myData.weather.hourlyMain[0], x + dx / 2, y + 90, 1);
 
-   canvas.drawString(getFloatString(myData.weather.hourlyMaxTemp[0], " C"), x + 30, y + 180, 1);
-   canvas.drawString(getFloatString(myData.weather.hourlyRain[0], " mm"),   x + 30, y + 220, 1);
+   canvas.drawString(getFloatString(myData.weather.hourlyMaxTemp[0], "C"), x + 30, y + 130, 1);
+   canvas.drawString(getFloatString(myData.weather.hourlyRain[0], "mm"),   x + 30, y + 160, 1);
 }
 
 /* Draw the in the wind section
@@ -251,32 +244,19 @@ void WeatherDisplay::DisplayDisplayWindSection(int x, int y, float angle, float 
 /* Draw the wind information part */
 void WeatherDisplay::DrawWindInfo(int x, int y, int dx, int dy)
 {
-   canvas.setTextSize(3);
-   canvas.drawCentreString("Wind", x + dx / 2, y + 7, 1);
-   canvas.drawLine(x, y + 35, x + dx, y + 35, M5EPD_Canvas::G15);
-
-   DisplayDisplayWindSection(x + dx / 2, y + dy / 2 + 20, myData.weather.winddir, myData.weather.windspeed, 75);
+   DisplayDisplayWindSection(x + dx / 2, y + dy / 2, myData.weather.winddir, myData.weather.windspeed, 75);
 }
 
 /* Draw the M5Paper environment and RTC information */
-void WeatherDisplay::DrawM5PaperInfo(int x, int y, int dx, int dy)
+void WeatherDisplay::DrawIndoorInfo(int x, int y, int dx, int dy)
 {
-   canvas.setTextSize(3);
-   canvas.drawCentreString("M5Paper", x + dx / 2, y + 7, 1);
-   canvas.drawLine(x, y + 35, x + dx, y + 35, M5EPD_Canvas::G15);
 
    canvas.setTextSize(3);
-   canvas.drawCentreString(getRTCDateString(), x + dx / 2, y + 55, 1);
-   canvas.drawCentreString(getRTCTimeString(), x + dx / 2, y + 95, 1);
-   canvas.setTextSize(2);
-   canvas.drawCentreString("updated", x + dx / 2, y + 120, 1);
-
-   canvas.setTextSize(3);
-   DrawIcon(x + 35, y + 140, (uint16_t *) TEMPERATURE64x64);
-   canvas.drawString(String(myData.sht30Temperatur) + " C", x + 35, y + 210, 1);
-   DrawIcon(x + 145, y + 140, (uint16_t *) HUMIDITY64x64);
-   canvas.drawString(String(myData.sht30Humidity) + "%", x + 150, y + 210, 1);
-   
+   canvas.drawCentreString("Indoors", x + dx / 2, y + 40, 1);
+   DrawIcon(x + 35, y + 70, (uint16_t *) TEMPERATURE64x64);
+   canvas.drawString(String(myData.sht30Temperatur, 1) + "C", x + 35, y + 140, 1);
+   DrawIcon(x + 145, y + 70, (uint16_t *) HUMIDITY64x64);
+   canvas.drawString(String(myData.sht30Humidity) + "%", x + 150, y + 140, 1);   
 }
 
 /* Draw one daily weather information */
@@ -292,13 +272,13 @@ void WeatherDisplay::DrawDaily(int x, int y, int dx, int dy, Weather &weather, i
    canvas.setTextSize(2);
    if (weekday(time) == 1 || weekday(time) == 7) {
       canvas.setTextColor(WHITE, M5EPD_Canvas::G2);
-      canvas.fillRect(x + 1, y + 1, dx - 1, 26, M5EPD_Canvas::G2);
+      canvas.fillRect(x + 1, y + 1, dx - 1, 27, M5EPD_Canvas::G2);
    }
-   canvas.drawCentreString(index == 0 ? "Today" : getShortDayOfWeekString(time), x + dx / 2, y + 5, 1);
+   canvas.drawCentreString(index == 0 ? "Today" : getShortDayOfWeekString(time), x + dx / 2, y + 8, 1);
    canvas.setTextColor(WHITE, BLACK);
 
    int iconX = x + dx / 2 - 32;
-   int iconY = y + 20;
+   int iconY = y + 23;
    
         if (icon == "01d") DrawIcon(iconX, iconY, (uint16_t *) image_data_01d, 64, 64, true);
    else if (icon == "01n") DrawIcon(iconX, iconY, (uint16_t *) image_data_03n, 64, 64, true);
@@ -320,8 +300,8 @@ void WeatherDisplay::DrawDaily(int x, int y, int dx, int dy, Weather &weather, i
    else if (icon == "50n") DrawIcon(iconX, iconY, (uint16_t *) image_data_50n, 64, 64, true);
    else DrawIcon(iconX, iconY, (uint16_t *) image_data_unknown, 64, 64, true);
 
-   canvas.drawCentreString(String(tMin)+"/"+String(tMax), x + dx / 2, y + 84, 1);
-   canvas.drawCentreString(String(pop)+"%/"+String(rain)+"mm", x + dx / 2, y + 102, 1);
+   canvas.drawCentreString(String(tMin)+"/"+String(tMax), x + dx / 2, y + 87, 1);
+   canvas.drawCentreString(String(pop)+"%/"+String(rain)+"mm", x + dx / 2, y + 105, 1);
 }
 
 /* Draw a graph with x- and y-axis and values */
@@ -506,22 +486,22 @@ void WeatherDisplay::Show()
 
    // x = 960 y = 540
    // 540 - oben 35 - unten 10 = 495
-   
-   canvas.drawRect(14, 34, maxX - 28, maxY - 43, M5EPD_Canvas::G15);
-   
-   canvas.drawRect(15, 35, maxX - 30, 251, M5EPD_Canvas::G15);
-   canvas.drawLine(232, 35, 232, 286, M5EPD_Canvas::G15);
-   canvas.drawLine(465, 35, 465, 286, M5EPD_Canvas::G15);
-   canvas.drawLine(697, 35, 697, 286, M5EPD_Canvas::G15);
-   DrawWeatherInfo( 15, 35, 232, 251);
-   DrawSunInfo    (232, 35, 232, 251);
-   DrawWindInfo   (465, 35, 232, 251);
-   DrawM5PaperInfo(697, 35, 245, 251);
+      
+   canvas.drawLine(248, 35, 248, 257, M5EPD_Canvas::G15);
+   canvas.drawLine(480, 35, 480, 257, M5EPD_Canvas::G15);
+   canvas.drawLine(712, 35, 712, 257, M5EPD_Canvas::G15);
+   DrawWeatherInfo( 16, 35, 232, 232);
+   DrawSunInfo    (248, 50, 232, 232);
+   DrawWindInfo   (480, 25, 232, 232);
+   DrawIndoorInfo (712, 40, 232, 232);
 
-   canvas.drawRect(15, 286, maxX - 30, 122, M5EPD_Canvas::G15);
-   for (int x = 15, i = 0; x <= 930; x += 116, i++) {
-      canvas.drawLine(x, 286, x, 408, M5EPD_Canvas::G15);
-      DrawDaily(x, 286, 116, 122, myData.weather, i);
+   canvas.drawLine(16, 257, 940, 257, M5EPD_Canvas::G15);
+   canvas.drawLine(16, 392, 940, 392, M5EPD_Canvas::G15);
+   for (int x = 16, i = 0; x < 944; x += 116, i++) {
+      if (i > 0) {
+        canvas.drawLine(x, 257, x, 392, M5EPD_Canvas::G15);
+      }
+      DrawDaily(x, 260, 116, 130, myData.weather, i);
    }
 
    float hoursUntilSunlize = 0, hoursAfterSunset = 0;
@@ -531,31 +511,30 @@ void WeatherDisplay::Show()
    if (myData.weather.currentTime + 12 * 60 * 60 > myData.weather.sunset) {
       hoursAfterSunset = (myData.weather.currentTime + 12 * 60 * 60 - myData.weather.sunset) / 3600.0;
    }
-   canvas.drawRect(15, 408, maxX - 30, 122, M5EPD_Canvas::G15);
-   DrawGraph( 15, 408, 232, 122, "Temp 12h (C)", 0, 12, myData.weather.hourlyTempRange[0], myData.weather.hourlyTempRange[1], myData.weather.hourlyMaxTemp, NULL, hoursUntilSunlize, hoursAfterSunset);
-   DrawDualGraph(247, 408, 232, 122, "Rain 12h (mm/%)", 0, 12,   0,  100, myData.weather.hourlyPop, 1, 0, myData.weather.hourlyMaxRain, myData.weather.hourlyRain, hoursUntilSunlize, hoursAfterSunset);
-   canvas.drawLine(480, 408, 480, 530, M5EPD_Canvas::G15);
-   DrawGraph(481, 408, 232, 122, "Temp 7days (C)", 0,  7, myData.weather.forecastTempRange[0], myData.weather.forecastTempRange[1], myData.weather.forecastMinTemp, myData.weather.forecastMaxTemp);
-   DrawDualGraph(713, 408, 232, 122, "Rain 7days (mm/%)", 0,  7,   0,  100, myData.weather.forecastPop, 0, 0, myData.weather.forecastMaxRain, myData.weather.forecastRain);
+   DrawGraph( 16+2, 396, 232-4, 136, "Temp 12h (C)", 0, 12, myData.weather.hourlyTempRange[0], myData.weather.hourlyTempRange[1], myData.weather.hourlyMaxTemp, NULL, hoursUntilSunlize, hoursAfterSunset);
+   DrawDualGraph(248+2, 396, 232-4, 136, "Rain 12h (mm/%)", 0, 12,   0,  100, myData.weather.hourlyPop, 1, 0, myData.weather.hourlyMaxRain, myData.weather.hourlyRain, hoursUntilSunlize, hoursAfterSunset);
+   canvas.drawLine(480, 392, 480, 530, M5EPD_Canvas::G15);
+   DrawGraph(480+2, 396, 232-4, 136, "Temp 7days (C)", 0,  7, myData.weather.forecastTempRange[0], myData.weather.forecastTempRange[1], myData.weather.forecastMinTemp, myData.weather.forecastMaxTemp);
+   DrawDualGraph(712+2, 396, 232-4, 136, "Rain 7days (mm/%)", 0,  7,   0,  100, myData.weather.forecastPop, 0, 0, myData.weather.forecastMaxRain, myData.weather.forecastRain);
    
    canvas.pushCanvas(0, 0, UPDATE_MODE_GC16);
    delay(1000);
 }
 
-/* Update only the M5Paper part of the global data */
-void WeatherDisplay::ShowM5PaperInfo()
+/* Update only the Indoor part of the global data */
+void WeatherDisplay::ShowIndoorInfo()
 {
-   Serial.println("WeatherDisplay::ShowM5PaperInfo");
+   Serial.println("WeatherDisplay::ShowIndoorInfo");
 
-   canvas.createCanvas(245, 251);
+   canvas.createCanvas(232, 251);
 
    canvas.setTextSize(2);
    canvas.setTextColor(WHITE, BLACK);
    canvas.setTextDatum(TL_DATUM);
 
-   canvas.drawRect(0, 0, 245, 251, M5EPD_Canvas::G15);
-   DrawM5PaperInfo(0, 0, 245, 251);
+   canvas.drawRect(0, 0, 232, 251, M5EPD_Canvas::G15);
+   DrawIndoorInfo(0, 0, 232, 251);
    
-   canvas.pushCanvas(697, 35, UPDATE_MODE_GC16);
+   canvas.pushCanvas(711, 35, UPDATE_MODE_GC16);
    delay(1000);
 }
